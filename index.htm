@@ -1,0 +1,75 @@
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>The Starfield</title>
+		<meta name="description" content="Test Starfield Experiement">
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>		
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+				background-color: black;
+				overflow: hidden;
+			}
+			
+			.star {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script>
+			$(() => {
+				setInterval(() => {
+					let w = window.innerWidth / 2;
+					let h = window.innerHeight / 2;
+					$('.star').each((index, item) => {
+						let iw = $(item).position().left;
+						let ih = $(item).position().top;
+						if (iw > 2000 || iw < 0 || ih > 2000 || ih < 0) item.remove();
+						
+						let iwv = iw-w;
+						let ihv = ih-h;
+						let dist = Math.sqrt(Math.abs(iwv*iwv) + Math.abs(ihv*ihv));
+						
+						$(item).css('top', ih+(ihv*(dist*0.0001)) + 'px');
+						$(item).css('left', iw+(iwv*(dist*0.0003)) + 'px');
+					});
+					
+					for (let x = 0; x < 10; x++) {
+						let mw = Math.random()*window.innerWidth;
+						let mh = Math.random()*window.innerHeight;
+						
+						let img = new Image();
+						img.src = "star.png";
+						$(img).addClass('star');
+						$(img).css('top', mh);
+						$(img).css('left', mw);
+						
+						$('body').append(img);
+					}
+					
+				}, 35);
+				
+				$('body').on('click', function(event) {
+					let mw = event.originalEvent.pageX;
+					let mh = event.originalEvent.pageY;
+					
+					let img = new Image();
+					img.src = "star.png";
+					$(img).addClass('star');
+					$(img).css('top', mh);
+					$(img).css('left', mw);
+					
+					$('body').append(img);
+				});
+			});
+		</script>
+	</body>
+</html>
