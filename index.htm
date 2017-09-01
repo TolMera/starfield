@@ -15,10 +15,8 @@
 				overflow: hidden;
 			}
 			
-			.star {
+			img {
 				position: absolute;
-				top: 0px;
-				left: 0px;
 			}
 		</style>
 	</head>
@@ -27,49 +25,92 @@
 		<script>
 			$(() => {
 				setInterval(() => {
-					let w = window.innerWidth / 2;
-					let h = window.innerHeight / 2;
-					$('.star').each((index, item) => {
-						let iw = $(item).position().left;
-						let ih = $(item).position().top;
-						if (iw > 2000 || iw < 0 || ih > 2000 || ih < 0) item.remove();
-						
-						let iwv = iw-w;
-						let ihv = ih-h;
-						let dist = Math.sqrt(Math.abs(iwv*iwv) + Math.abs(ihv*ihv));
-						
-						$(item).css('top', ih+(ihv*(dist*0.0001)) + 'px');
-						$(item).css('left', iw+(iwv*(dist*0.0003)) + 'px');
-					});
+					if ((window.mouse.x == undefined) || (window.mouse.y == undefined)) return false;
+					//let w = window.innerWidth / 2;
+					let w = window.mouse.x;
+					//let h = window.innerHeight / 2;
+					let h = window.mouse.y;
+					let wiw = window.innerWidth;
+					let wih = window.innerHeight;
 					
 					for (let x = 0; x < 10; x++) {
-						let mw = Math.random()*window.innerWidth;
-						let mh = Math.random()*window.innerHeight;
-						
+						let iw = Math.random()*wiw;
+						let ih = Math.random()*wih;
+
+						// if position is outside screen, skip.
+						if ((iw > wiw || ih > wih) || (iw == w && ih == h)) continue;
+
+						// Calculate Vector
+						let iwv = (iw-w);
+						let ihv = (ih-h);
+						let T = Math.abs(iwv) + Math.abs(ihv);
+						iwv = iwv / T;
+						ihv = ihv / T;
+
+						// If position is too close to the center, skip
+						//let margin = 10;
+						//if ((Math.abs(iw-w) < margin) && (Math.abs(ih-h) < margin)) continue;
+
+						// Speed
+						//let dist = Math.sqrt(Math.abs(iwv*iwv) + Math.abs(ihv*ihv));
+
 						let img = new Image();
 						img.src = "star.png";
-						$(img).addClass('star');
-						$(img).css('top', mh);
-						$(img).css('left', mw);
-						
-						$('body').append(img);
+						img = $(img).css({
+							top: ih,
+							left: iw
+						}).appendTo('body');
+						$(img).animate({
+							top:	ih+(ihv*wih) + 'px',
+							left:	iw+(iwv*wiw) + 'px'
+						}, 4000, 'linear', function () {
+							$(this).remove();
+						});
+						setTimeout(function (img) {$(img).remove()}, 200);
 					}
-					
 				}, 35);
-				
-				$('body').on('click', function(event) {
-					let mw = event.originalEvent.pageX;
-					let mh = event.originalEvent.pageY;
-					
-					let img = new Image();
-					img.src = "star.png";
-					$(img).addClass('star');
-					$(img).css('top', mh);
-					$(img).css('left', mw);
-					
-					$('body').append(img);
+
+				window.mouse = {};
+				$('body').on('mousemove', function (event) {
+					window.mouse.x = event.pageX;
+					window.mouse.y = event.pageY;
+					//$('img').each((index, item) => {updateAnimation(item)});
 				});
 			});
+			function updateAnimation (item) {
+				$(item).stop();
+
+				let w = window.mouse.x;
+				let h = window.mouse.y;
+
+				let wiw = window.innerWidth;
+				let wih = window.innerHeight;
+				
+				let iw = parseInt($(item).css('left').replace('px',''));
+				let ih = parseInt($(item).css('top').replace('px',''));
+
+				// Calculate Vector
+				let iwv = (iw-w);
+				let ihv = (ih-h);
+				let T = Math.abs(iwv) + Math.abs(ihv);
+				iwv = iwv / T;
+				ihv = ihv / T;
+
+				console.log(
+					{
+						top:	ih+(ihv*wih) + 'px',
+						left:	iw+(iwv*wiw) + 'px'
+					}
+				);
+
+				$(item).animate({
+					top:	ih+(ihv*wih) + 'px',
+					left:	iw+(iwv*wiw) + 'px'
+				}, 4000, 'linear', function () {
+					$(this).remove();
+				});
+				setTimeout(function (item) {$(item).remove()}, 4000);
+			}
 		</script>
 	</body>
 </html>
